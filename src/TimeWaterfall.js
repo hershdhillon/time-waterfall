@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { ThemeContext } from './ThemeContext';
 
 const TimeWaterfall = () => {
     const [times, setTimes] = useState([]);
     const maxTimes = 20;
     const intervalRef = useRef(null);
+    const { isDarkMode } = useContext(ThemeContext);
 
     const getFormattedTime = () => {
         const now = performance.now();
@@ -38,15 +40,19 @@ const TimeWaterfall = () => {
         };
     }, []);
 
+    const themeClasses = isDarkMode
+        ? "bg-black text-white"
+        : "bg-white text-black";
+
     return (
-        <div className="h-screen w-full bg-black text-white font-mono overflow-hidden flex items-center justify-center">
+        <div className={`h-full w-full font-mono overflow-hidden flex items-center justify-center ${themeClasses}`}>
             <div className="h-full w-full max-w-md relative overflow-hidden">
                 <div className="absolute top-1/2 left-0 w-full transition-transform duration-[16ms] ease-linear"
                      style={{ transform: `translateY(-50%)` }}>
                     {times.map((time, index) => (
                         <div
                             key={time + index}
-                            className="text-xl h-[30px] flex items-center justify-center  duration-[16ms]"
+                            className="text-xl h-[30px] flex items-center justify-center duration-[16ms]"
                         >
                             {time}
                         </div>

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { ThemeContext } from './ThemeContext';
 
 const CenturyProgressBar = () => {
     const [progress, setProgress] = useState(0);
     const [isHovering, setIsHovering] = useState(false);
+    const { isDarkMode } = useContext(ThemeContext);
     const startYear = 2000;
     const endYear = 2100;
 
@@ -27,10 +29,14 @@ const CenturyProgressBar = () => {
         return () => clearInterval(timer);
     }, []);
 
+    const themeClasses = isDarkMode
+        ? "bg-black text-white border-white"
+        : "bg-white text-black border-black";
+
     return (
-        <div className="h-screen w-24 p-4 bg-white flex flex-col justify-between items-center border-2 border-black relative">
+        <div className={`h-full w-24 p-4 flex flex-col justify-between items-center border-2 relative ${themeClasses}`}>
             <div className="text-center">
-                <span className="text-xs font-bold inline-block py-1 px-2 uppercase border-2 border-black text-black">
+                <span className={`text-xs font-bold inline-block py-1 px-2 uppercase border-2 ${themeClasses}`}>
                     {startYear}
                 </span>
             </div>
@@ -39,20 +45,20 @@ const CenturyProgressBar = () => {
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
             >
-                <div className="absolute top-0 left-0 w-full bg-white border-2 border-black" style={{ height: '100%' }}>
+                <div className={`absolute top-0 left-0 w-full border-2 ${themeClasses}`} style={{ height: '100%' }}>
                     <div
-                        className="absolute top-0 left-0 w-full bg-black transition-all duration-300"
+                        className={`absolute top-0 left-0 w-full transition-all duration-300 ${isDarkMode ? "bg-white" : "bg-black"}`}
                         style={{ height: `${progress}%` }}
                     ></div>
                 </div>
                 {isHovering && (
-                    <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                    <div className={`absolute right-full mr-2 top-1/2 transform -translate-y-1/2 px-2 py-1 rounded text-xs whitespace-nowrap ${isDarkMode ? "bg-white text-black" : "bg-black text-white"}`}>
                         {progress.toFixed(2)}% of century have passed
                     </div>
                 )}
             </div>
             <div className="text-center">
-                <span className="text-xs font-bold inline-block py-1 px-2 uppercase border-2 border-black text-black">
+                <span className={`text-xs font-bold inline-block py-1 px-2 uppercase border-2 ${themeClasses}`}>
                     {endYear}
                 </span>
             </div>
