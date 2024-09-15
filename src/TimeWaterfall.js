@@ -1,11 +1,45 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ThemeContext } from './ThemeContext';
 
+const useWindowSize = () => {
+    const [windowSize, setWindowSize] = useState({
+        width: window.innerWidth,
+        height: window.innerHeight,
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowSize;
+};
+
 const TimeWaterfall = () => {
     const [times, setTimes] = useState([]);
-    const maxTimes = 20;
     const intervalRef = useRef(null);
     const { isDarkMode } = useContext(ThemeContext);
+    const { height } = useWindowSize();
+    const timeHeight = 30; // height of each time element in pixels
+    const padding = 40; // 20px padding top and bottom
+    const minTimes = 5; // Minimum number of times to display
+    const maxTimesLimit = 50; // Maximum number of times to display
+
+    // Calculate maxTimes with padding and safety limits
+    const maxTimes = Math.min(
+        Math.max(
+            Math.floor((height - padding) / timeHeight),
+            minTimes
+        ),
+        maxTimesLimit
+    );
 
     const getFormattedTime = () => {
         const now = new Date();
@@ -34,7 +68,7 @@ const TimeWaterfall = () => {
 
         intervalRef.current = setInterval(() => {
             const newTime = getFormattedTime();
-            setTimes(prevTimes => [newTime, ...prevTimes.slice(0, -1)]);
+            setTimes(prevTimes => [newTime, ...prevTimes.slice(0, maxTimes - 1)]);
         }, 16);
 
         return () => {
@@ -42,7 +76,7 @@ const TimeWaterfall = () => {
                 clearInterval(intervalRef.current);
             }
         };
-    }, []);
+    }, [maxTimes]);
 
     const themeClasses = isDarkMode
         ? "bg-black text-white"
@@ -50,7 +84,7 @@ const TimeWaterfall = () => {
 
     return (
         <div className={`h-full w-full font-mono overflow-hidden flex items-center justify-center ${themeClasses}`}>
-            <div className="h-full w-full max-w-md relative overflow-hidden">
+            <div className="h-full w-full max-w-md relative overflow-hidden py-5">
                 <div className="absolute top-1/2 left-0 w-full transition-transform duration-[16ms] ease-linear"
                      style={{ transform: `translateY(-50%)` }}>
                     {times.map((time, index) => (
