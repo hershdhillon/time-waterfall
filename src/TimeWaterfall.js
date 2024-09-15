@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { ThemeContext } from './ThemeContext';
 
 const TimeWaterfall = () => {
@@ -8,20 +8,24 @@ const TimeWaterfall = () => {
     const { isDarkMode } = useContext(ThemeContext);
 
     const getFormattedTime = () => {
-        const now = performance.now();
-        const date = new Date();
-        const pad = (num, size) => num.toString().padStart(size, '0');
-        const ms = pad(date.getMilliseconds(), 3);
-        const microseconds = pad(Math.floor((now % 1) * 1000), 3);
-        return date.toLocaleString('en-US', {
+        const now = new Date();
+        const formatter = new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false
-        }) + `.${ms}${microseconds}`;
+            hour12: false,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
+
+        const pad = (num, size) => num.toString().padStart(size, '0');
+        const formatted = formatter.format(now);
+        const ms = pad(now.getMilliseconds(), 3);
+        const microseconds = pad(Math.floor((performance.now() % 1) * 1000), 3);
+
+        return `${formatted}.${ms}${microseconds}`;
     };
 
     useEffect(() => {
